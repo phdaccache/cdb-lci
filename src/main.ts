@@ -228,11 +228,19 @@ $('curva-reset').addEventListener('click', () => {
 // Ao trocar % CDI ↔ % a.a., converte o número pelo CDI atual para o resultado não mudar.
 // Voltar para a unidade de antes, sem mexer no número, devolve o número original (sem o desvio
 // do arredondamento em 2 casas: 110% CDI → 15,02% a.a. → 110% CDI, e não 110,04).
+// Número padrão de cada taxa em cada unidade. Trocar a unidade de um campo que ainda está no
+// padrão leva ao padrão da outra unidade (110% CDI → 14% a.a.); um número editado é convertido.
+const PADRAO = { cdb: { cdi: '110', aa: '14' }, lci: { cdi: '90', aa: '12' } } as const
+
 function trocarUnidade(id: 'cdb' | 'lci') {
   const campo = $<HTMLInputElement>(id)
-  const un = valor(`${id}-un`)
+  const un = valor(`${id}-un`) as Unidade
+  const anterior: Unidade = un === 'cdi' ? 'aa' : 'cdi'
   const { original, unOriginal, convertido } = campo.dataset
-  if (convertido === campo.value && unOriginal === un && original !== undefined) {
+  if (campo.value === PADRAO[id][anterior]) {
+    campo.value = PADRAO[id][un]
+    delete campo.dataset.convertido
+  } else if (convertido === campo.value && unOriginal === un && original !== undefined) {
     campo.value = original
     delete campo.dataset.convertido
   } else {
