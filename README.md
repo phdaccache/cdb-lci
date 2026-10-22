@@ -18,7 +18,7 @@ Funciona como app na tela inicial (PWA), offline, e guarda os últimos valores n
 <p align="center">
   <img src="docs/print-claro.png" width="280" alt="App no modo claro: CDI de 14,35%, R$ 10.000 por 2 anos, CDB de 100% do CDI contra LCI de 11,6% a.a., com a tabela de valores por faixa de IR" />
   &nbsp;
-  <img src="docs/print-escuro.png" width="280" alt="O mesmo exemplo no modo escuro" />
+  <img src="docs/print-grafico.png" width="280" alt="Modo escuro com o gráfico do CDI aberto: 14,35% em 2026, 13,20% em 2027 e 11,50% em 2028, ajustados arrastando as barras" />
 </p>
 
 ## Como o cálculo funciona
