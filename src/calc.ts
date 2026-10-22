@@ -25,35 +25,35 @@ export function parseNum(texto: string): number {
   return Number.isFinite(n) ? n : 0
 }
 
-/** Maior valor aceito: R$ 10 milhões. */
+/** Maior valor aceito no campo Valor: R$ 10 milhões. */
 export const VALOR_MAX = 10_000_000
+/** Maior taxa aceita nos campos CDI, CDB e LCI: 1.000%. */
+export const TAXA_MAX = 1000
 
 /**
- * Valor em reais digitado como na Wise: inteiros ganham os pontos de milhar enquanto se digita,
- * e os centavos só aparecem se a pessoa digitar a vírgula (até 2 casas).
+ * Número digitado como na Wise: a parte inteira ganha os pontos de milhar enquanto se digita,
+ * e as casas decimais só aparecem se a pessoa digitar a vírgula (até 2).
  * "1000" → "1.000", "1000,5" → "1.000,5", "" → "" (o campo mostra o 0 de exemplo).
- * Um ponto digitado no fim vira vírgula. Se o resultado passar de R$ 10 milhões, volta `anterior`.
+ * Um ponto digitado no fim vira vírgula. Se o resultado passar de `max`, volta `anterior`.
  */
-export function formatarReais(texto: string, anterior = ''): string {
+export function formatarNumero(texto: string, max: number, anterior = ''): string {
   let s = texto
   if (s.endsWith('.') && !s.includes(',')) s = s.slice(0, -1) + ','
   const virgula = s.indexOf(',')
   const inteiro = (virgula < 0 ? s : s.slice(0, virgula)).replace(/\D/g, '').replace(/^0+/, '')
-  const centavos = virgula < 0 ? '' : s.slice(virgula + 1).replace(/\D/g, '').slice(0, 2)
+  const decimais = virgula < 0 ? '' : s.slice(virgula + 1).replace(/\D/g, '').slice(0, 2)
   if (!inteiro && virgula < 0) return ''
 
   const milhar = (inteiro || '0').replace(/\B(?=(\d{3})+(?!\d))/g, '.')
-  const resultado = virgula < 0 ? milhar : `${milhar},${centavos}`
-  return parseNum(resultado) > VALOR_MAX ? anterior : resultado
+  const resultado = virgula < 0 ? milhar : `${milhar},${decimais}`
+  return parseNum(resultado) > max ? anterior : resultado
 }
 
-/** Um valor numérico no formato do campo Valor: 10000 → "10.000", 1000.5 → "1.000,50". */
-export function reaisDeNumero(v: number): string {
+/** Um número no formato desses campos, com até 2 casas: 10000 → "10.000", 92.5 → "92,5". */
+export function numeroParaCampo(v: number, max: number): string {
   if (!(v > 0)) return ''
-  const limitado = Math.min(v, VALOR_MAX)
-  return Number.isInteger(limitado)
-    ? formatarReais(String(limitado))
-    : limitado.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  const r = Math.round(Math.min(v, max) * 100) / 100
+  return formatarNumero(String(r).replace('.', ','), max)
 }
 
 /** Meses e anos viram dias corridos, que é como o IR conta. */
