@@ -19,6 +19,8 @@ describe('parseNum', () => {
     expect(parseNum('14,15')).toBe(14.15)
     expect(parseNum('1.234,5')).toBe(1234.5)
     expect(parseNum('110')).toBe(110)
+    expect(parseNum('14.15')).toBe(14.15)
+    expect(parseNum('92.5')).toBe(92.5)
     expect(parseNum('')).toBe(0)
     expect(parseNum('abc')).toBe(0)
   })

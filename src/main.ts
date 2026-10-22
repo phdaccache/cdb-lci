@@ -237,6 +237,16 @@ function trocarUnidade(id: 'cdb' | 'lci') {
 }
 $('cdb-un').addEventListener('change', () => trocarUnidade('cdb'))
 $('lci-un').addEventListener('change', () => trocarUnidade('lci'))
+// Nas taxas e no prazo, um ponto digitado vira vírgula (teclados de outros idiomas mostram ponto).
+for (const id of ['cdi', 'prazo', 'cdb', 'lci']) {
+  const campo = $<HTMLInputElement>(id)
+  campo.addEventListener('input', () => {
+    if (!campo.value.includes('.')) return
+    const cursor = campo.selectionStart
+    campo.value = campo.value.replaceAll('.', ',')
+    if (cursor !== null) campo.setSelectionRange(cursor, cursor)
+  })
+}
 for (const id of ['cdi', 'prazo', 'prazo-un', 'cdb', 'lci']) $(id).addEventListener('input', calc)
 
 // Valor com pontuação automática, como no app do banco; o cursor fica sempre no fim.
