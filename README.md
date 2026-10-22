@@ -6,6 +6,12 @@ Calculadora para iPhone que compara um CDB com uma LCI e mostra qual rende mais 
 
 Funciona como app na tela inicial (PWA), offline, e guarda os últimos valores no próprio aparelho.
 
+<p align="center">
+  <img src="docs/print-claro.png" width="280" alt="App no modo claro: CDI de 14,35%, R$ 10.000 por 2 anos, CDB de 100% do CDI contra LCI de 11,6% a.a., com a tabela de valores por faixa de IR" />
+  &nbsp;
+  <img src="docs/print-escuro.png" width="280" alt="O mesmo exemplo no modo escuro" />
+</p>
+
 ## O que o app mostra
 
 - **Taxas** do CDB e da LCI em % do CDI ou em % ao ano, cada uma com sua unidade. Dá para comparar, por exemplo, um CDB de 110% do CDI com uma LCI de 12% a.a.
