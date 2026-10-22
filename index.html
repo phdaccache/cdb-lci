@@ -15,6 +15,28 @@
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
     <link rel="icon" href="/icons/favicon.svg" type="image/svg+xml" />
     <title>CDB x LCI</title>
+    <script>
+      // Prévia: mostra na tela qualquer erro de script (inclusive um script que não carregou),
+      // para diagnosticar no iPhone sem ferramentas de desenvolvedor.
+      ;(function () {
+        function mostrar(texto) {
+          var el = document.getElementById('erro-js')
+          if (!el) {
+            el = document.createElement('pre')
+            el.id = 'erro-js'
+            el.style.cssText = 'position:fixed;left:8px;right:8px;bottom:calc(8px + env(safe-area-inset-bottom));z-index:99;margin:0;padding:10px 12px;border-radius:10px;background:#d70015;color:#fff;font:12px/1.4 ui-monospace,monospace;white-space:pre-wrap;max-height:40vh;overflow:auto'
+            document.documentElement.appendChild(el)
+          }
+          el.textContent += (el.textContent ? '\n' : '') + texto
+        }
+        window.addEventListener('error', function (e) {
+          var t = e.target
+          if (t && t !== window && (t.src || t.href)) mostrar('Não carregou: ' + (t.src || t.href))
+          else mostrar((e.message || 'Erro') + (e.filename ? '\n' + e.filename + ':' + e.lineno + ':' + e.colno : ''))
+        }, true)
+        window.addEventListener('unhandledrejection', function (e) { mostrar('Promise: ' + (e.reason && (e.reason.stack || e.reason.message) || e.reason)) })
+      })()
+    </script>
   </head>
   <body>
     <main class="app">
