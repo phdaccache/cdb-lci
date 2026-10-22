@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { aliquota, cdiAno, diasDoPrazo, fator, parseNum } from './calc'
+import { aliquota, cdiAno, diasDoPrazo, fator, formatarReais, parseNum } from './calc'
 
 describe('aliquota', () => {
   it('inclui o último dia de cada faixa', () => {
@@ -21,6 +21,22 @@ describe('parseNum', () => {
     expect(parseNum('110')).toBe(110)
     expect(parseNum('')).toBe(0)
     expect(parseNum('abc')).toBe(0)
+  })
+})
+
+describe('formatarReais', () => {
+  it('preenche pela direita, em centavos', () => {
+    expect(formatarReais('')).toBe('0,00')
+    expect(formatarReais('1')).toBe('0,01')
+    expect(formatarReais('1000000')).toBe('10.000,00')
+    expect(formatarReais('0,012')).toBe('0,12')
+    expect(formatarReais('10.000,005')).toBe('100.000,05')
+  })
+
+  it('não passa de R$ 10 milhões', () => {
+    expect(formatarReais('1000000000')).toBe('10.000.000,00')
+    expect(formatarReais('10.000.000,001')).toBe('10.000.000,00')
+    expect(formatarReais('1.234.567,891')).toBe('1.234.567,89')
   })
 })
 

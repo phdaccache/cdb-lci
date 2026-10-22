@@ -25,6 +25,21 @@ export function parseNum(texto: string): number {
   return Number.isFinite(n) ? n : 0
 }
 
+/** Maior valor aceito: R$ 10 milhões, em centavos. */
+export const VALOR_MAX_CENTAVOS = 1_000_000_000
+
+/**
+ * Valor em reais digitado como no app do banco: os dígitos entram pela direita, em centavos.
+ * "1" → "0,01", "1000000" → "10.000,00". Ignora tudo que não é dígito, e um dígito que
+ * passaria de R$ 10 milhões é descartado (o valor fica como estava).
+ */
+export function formatarReais(texto: string): string {
+  let digitos = texto.replace(/\D/g, '').replace(/^0+/, '')
+  while (Number(digitos || '0') > VALOR_MAX_CENTAVOS) digitos = digitos.slice(0, -1)
+  const centavos = Number(digitos || '0')
+  return (centavos / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+}
+
 /** Meses e anos viram dias corridos, que é como o IR conta. */
 export function diasDoPrazo(n: number, un: UnidadePrazo): number {
   return Math.round(n * { dias: 1, meses: 365 / 12, anos: 365 }[un])

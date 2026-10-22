@@ -1,6 +1,6 @@
 import './styles.css'
 import { registerSW } from 'virtual:pwa-register'
-import { FAIXAS, aliquota, cdiAno, diasDoPrazo, fator, parseNum, type Unidade, type UnidadePrazo } from './calc'
+import { FAIXAS, aliquota, cdiAno, diasDoPrazo, fator, formatarReais, parseNum, type Unidade, type UnidadePrazo } from './calc'
 
 const HOJE = new Date()
 const ANO0 = HOJE.getFullYear()
@@ -237,9 +237,24 @@ function trocarUnidade(id: 'cdb' | 'lci') {
 }
 $('cdb-un').addEventListener('change', () => trocarUnidade('cdb'))
 $('lci-un').addEventListener('change', () => trocarUnidade('lci'))
-for (const id of ['cdi', 'valor', 'prazo', 'prazo-un', 'cdb', 'lci']) $(id).addEventListener('input', calc)
+for (const id of ['cdi', 'prazo', 'prazo-un', 'cdb', 'lci']) $(id).addEventListener('input', calc)
+
+// Valor com pontuação automática, como no app do banco; o cursor fica sempre no fim.
+const campoValor = $<HTMLInputElement>('valor')
+// Valores na casa dos milhões usam uma letra menor para caber no card.
+const ajustarValor = () => campoValor.classList.toggle('longo', campoValor.value.length >= 10)
+campoValor.addEventListener('input', () => {
+  campoValor.value = formatarReais(campoValor.value)
+  const fim = campoValor.value.length
+  campoValor.setSelectionRange(fim, fim)
+  ajustarValor()
+  calc()
+})
 
 carregar()
+// Valor salvo por versões antigas ("10.000") vira o formato com centavos.
+campoValor.value = formatarReais(String(Math.round(parseNum(campoValor.value) * 100)))
+ajustarValor()
 calc()
 
 // Procura versão nova ao abrir e sempre que o app volta para a frente.
