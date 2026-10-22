@@ -1,6 +1,6 @@
 import './styles.css'
 import { registerSW } from 'virtual:pwa-register'
-import { FAIXAS, aliquota, cdiAno, diasDoPrazo, fator, formatarReais, parseNum, type Unidade, type UnidadePrazo } from './calc'
+import { FAIXAS, aliquota, cdiAno, diasDoPrazo, fator, formatarReais, parseNum, reaisDeNumero, type Unidade, type UnidadePrazo } from './calc'
 
 const HOJE = new Date()
 const ANO0 = HOJE.getFullYear()
@@ -249,21 +249,32 @@ for (const id of ['cdi', 'prazo', 'cdb', 'lci']) {
 }
 for (const id of ['cdi', 'prazo', 'prazo-un', 'cdb', 'lci']) $(id).addEventListener('input', calc)
 
-// Valor com pontuação automática, como no app do banco; o cursor fica sempre no fim.
+// Valor como na Wise: pontos de milhar automáticos, centavos só com vírgula, 0 de exemplo
+// quando vazio e o cursor sempre no fim (digita e apaga só pela direita).
 const campoValor = $<HTMLInputElement>('valor')
+let valorAnterior = campoValor.value
 // Valores na casa dos milhões usam uma letra menor para caber no card.
 const ajustarValor = () => campoValor.classList.toggle('longo', campoValor.value.length >= 10)
-campoValor.addEventListener('input', () => {
-  campoValor.value = formatarReais(campoValor.value)
+const cursorNoFim = () => {
   const fim = campoValor.value.length
-  campoValor.setSelectionRange(fim, fim)
+  if (campoValor.selectionStart !== fim || campoValor.selectionEnd !== fim) campoValor.setSelectionRange(fim, fim)
+}
+campoValor.addEventListener('input', () => {
+  campoValor.value = formatarReais(campoValor.value, valorAnterior)
+  valorAnterior = campoValor.value
+  cursorNoFim()
   ajustarValor()
   calc()
 })
+for (const evento of ['focus', 'click', 'keyup', 'select']) campoValor.addEventListener(evento, cursorNoFim)
+document.addEventListener('selectionchange', () => {
+  if (document.activeElement === campoValor) cursorNoFim()
+})
 
 carregar()
-// Valor salvo por versões antigas ("10.000") vira o formato com centavos.
-campoValor.value = formatarReais(String(Math.round(parseNum(campoValor.value) * 100)))
+// Valor salvo por versões antigas ("10.000,00") vira o formato atual.
+campoValor.value = reaisDeNumero(parseNum(campoValor.value))
+valorAnterior = campoValor.value
 ajustarValor()
 calc()
 

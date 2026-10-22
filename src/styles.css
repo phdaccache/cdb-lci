@@ -56,7 +56,9 @@
 
 * { box-sizing: border-box; }
 /* No iOS, -apple-system-body traz o tamanho escolhido em Ajustes; fora dele vale 17px. */
-html { -webkit-text-size-adjust: 100%; font-size: 17px; font: -apple-system-body; }
+html { -webkit-text-size-adjust: 100%; font-size: 17px; font: -apple-system-body; scrollbar-width: none; }
+/* A página continua rolando; só a barra de rolagem não aparece. */
+::-webkit-scrollbar { display: none; }
 body {
   margin: 0;
   background: var(--bg);

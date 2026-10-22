@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { aliquota, cdiAno, diasDoPrazo, fator, formatarReais, parseNum } from './calc'
+import { aliquota, cdiAno, diasDoPrazo, fator, formatarReais, parseNum, reaisDeNumero } from './calc'
 
 describe('aliquota', () => {
   it('inclui o último dia de cada faixa', () => {
@@ -27,18 +27,30 @@ describe('parseNum', () => {
 })
 
 describe('formatarReais', () => {
-  it('preenche pela direita, em centavos', () => {
-    expect(formatarReais('')).toBe('0,00')
-    expect(formatarReais('1')).toBe('0,01')
-    expect(formatarReais('1000000')).toBe('10.000,00')
-    expect(formatarReais('0,012')).toBe('0,12')
-    expect(formatarReais('10.000,005')).toBe('100.000,05')
+  it('põe os pontos de milhar e só mostra centavos depois da vírgula', () => {
+    expect(formatarReais('')).toBe('')
+    expect(formatarReais('0')).toBe('')
+    expect(formatarReais('1000')).toBe('1.000')
+    expect(formatarReais('1.0000')).toBe('10.000')
+    expect(formatarReais('1.000,')).toBe('1.000,')
+    expect(formatarReais('1.000,5')).toBe('1.000,5')
+    expect(formatarReais('1.000,567')).toBe('1.000,56')
+    expect(formatarReais(',5')).toBe('0,5')
+    expect(formatarReais('1.000.')).toBe('1.000,')
+    expect(formatarReais('12,3,4')).toBe('12,34')
+    expect(formatarReais('1.00')).toBe('100')
   })
 
   it('não passa de R$ 10 milhões', () => {
-    expect(formatarReais('1000000000')).toBe('10.000.000,00')
-    expect(formatarReais('10.000.000,001')).toBe('10.000.000,00')
-    expect(formatarReais('1.234.567,891')).toBe('1.234.567,89')
+    expect(formatarReais('10.000.000')).toBe('10.000.000')
+    expect(formatarReais('10.000.0001', '10.000.000')).toBe('10.000.000')
+    expect(formatarReais('10.000.000,01', '10.000.000,0')).toBe('10.000.000,0')
+  })
+
+  it('converte números salvos', () => {
+    expect(reaisDeNumero(10000)).toBe('10.000')
+    expect(reaisDeNumero(1000.5)).toBe('1.000,50')
+    expect(reaisDeNumero(0)).toBe('')
   })
 })
 
