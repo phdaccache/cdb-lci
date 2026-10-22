@@ -1,6 +1,6 @@
 import './styles.css'
 import { registerSW } from 'virtual:pwa-register'
-import { FAIXAS, TAXA_MAX, VALOR_MAX, aliquota, cdiAno, diasDoPrazo, fator, formatarNumero, numeroParaCampo, parseNum, type Unidade, type UnidadePrazo } from './calc'
+import { FAIXAS, aliquota, cdiAno, diasDoPrazo, fator, formatarReais, parseNum, reaisDeNumero, type Unidade, type UnidadePrazo } from './calc'
 
 const HOJE = new Date()
 const ANO0 = HOJE.getFullYear()
@@ -153,7 +153,7 @@ function renderCurva(base: number, diasMax: number) {
 
 function setCdiAno(ano: number, v: number) {
   v = Math.max(0, Math.round(v * 2000) / 2000) // passos de 0,05%
-  if (ano === ANO0) $<HTMLInputElement>('cdi').value = numeroParaCampo(v * 100, TAXA_MAX)
+  if (ano === ANO0) $<HTMLInputElement>('cdi').value = fmt(v * 100, 2)
   else simulado[ano] = v
   calc()
 }
@@ -226,78 +226,56 @@ $('curva-reset').addEventListener('click', () => {
 })
 
 // Ao trocar % CDI ↔ % a.a., converte o número pelo CDI atual para o resultado não mudar.
-// Voltar para a unidade de antes, sem mexer no número, devolve o número original (sem o desvio
-// do arredondamento em 2 casas: 110% CDI → 15,02% a.a. → 110% CDI, e não 110,04).
 function trocarUnidade(id: 'cdb' | 'lci') {
-  const campo = $<HTMLInputElement>(id)
-  const un = valor(`${id}-un`)
-  const { original, unOriginal, convertido } = campo.dataset
-  if (convertido === campo.value && unOriginal === un && original !== undefined) {
-    campo.value = original
-    delete campo.dataset.convertido
-  } else {
-    const cdi = parseNum(valor('cdi')) / 100
-    const v = parseNum(campo.value) / 100
-    if (cdi > 0 && v > 0) {
-      campo.dataset.original = campo.value
-      campo.dataset.unOriginal = un === 'cdi' ? 'aa' : 'cdi'
-      campo.value = numeroParaCampo((un === 'cdi' ? v / cdi : v * cdi) * 100, TAXA_MAX)
-      campo.dataset.convertido = campo.value
-    }
+  const cdi = parseNum(valor('cdi')) / 100
+  const v = parseNum(valor(id)) / 100
+  if (cdi > 0 && v > 0) {
+    const novo = valor(`${id}-un`) === 'cdi' ? v / cdi : v * cdi
+    $<HTMLInputElement>(id).value = (novo * 100).toLocaleString('pt-BR', { maximumFractionDigits: 2, useGrouping: false })
   }
   calc()
 }
 $('cdb-un').addEventListener('change', () => trocarUnidade('cdb'))
 $('lci-un').addEventListener('change', () => trocarUnidade('lci'))
-
-// Prazo: um ponto digitado vira vírgula (teclados de outros idiomas mostram ponto).
-const campoPrazo = $<HTMLInputElement>('prazo')
-campoPrazo.addEventListener('input', () => {
-  if (!campoPrazo.value.includes('.')) return
-  const cursor = campoPrazo.selectionStart
-  campoPrazo.value = campoPrazo.value.replaceAll('.', ',')
-  if (cursor !== null) campoPrazo.setSelectionRange(cursor, cursor)
-})
-for (const id of ['prazo', 'prazo-un']) $(id).addEventListener('input', calc)
-
-// Valor, CDI, CDB e LCI como na Wise: pontos de milhar automáticos, decimais só depois da
-// vírgula, 0 de exemplo quando vazio e o cursor sempre no fim (digita e apaga pela direita).
-const NUMERICOS = [
-  ['valor', VALOR_MAX],
-  ['cdi', TAXA_MAX],
-  ['cdb', TAXA_MAX],
-  ['lci', TAXA_MAX],
-] as const
-// Números longos (milhões) usam uma letra menor para caber no card.
-const ajustarTamanho = (campo: HTMLInputElement) => campo.classList.toggle('longo', campo.value.length >= 10)
-const cursorNoFim = (campo: HTMLInputElement) => {
-  const fim = campo.value.length
-  if (campo.selectionStart !== fim || campo.selectionEnd !== fim) campo.setSelectionRange(fim, fim)
-}
-for (const [id, max] of NUMERICOS) {
+// Nas taxas e no prazo, um ponto digitado vira vírgula (teclados de outros idiomas mostram ponto).
+for (const id of ['cdi', 'prazo', 'cdb', 'lci']) {
   const campo = $<HTMLInputElement>(id)
-  let anterior = campo.value
-  campo.addEventListener('beforeinput', () => (anterior = campo.value))
   campo.addEventListener('input', () => {
-    campo.value = formatarNumero(campo.value, max, anterior)
-    cursorNoFim(campo)
-    ajustarTamanho(campo)
-    calc()
+    if (!campo.value.includes('.')) return
+    const cursor = campo.selectionStart
+    campo.value = campo.value.replaceAll('.', ',')
+    if (cursor !== null) campo.setSelectionRange(cursor, cursor)
   })
-  for (const evento of ['focus', 'click', 'keyup', 'select']) campo.addEventListener(evento, () => cursorNoFim(campo))
 }
+for (const id of ['cdi', 'prazo', 'prazo-un', 'cdb', 'lci']) $(id).addEventListener('input', calc)
+
+// Valor como na Wise: pontos de milhar automáticos, centavos só com vírgula, 0 de exemplo
+// quando vazio e o cursor sempre no fim (digita e apaga só pela direita).
+const campoValor = $<HTMLInputElement>('valor')
+let valorAnterior = campoValor.value
+// Valores na casa dos milhões usam uma letra menor para caber no card.
+const ajustarValor = () => campoValor.classList.toggle('longo', campoValor.value.length >= 10)
+const cursorNoFim = () => {
+  const fim = campoValor.value.length
+  if (campoValor.selectionStart !== fim || campoValor.selectionEnd !== fim) campoValor.setSelectionRange(fim, fim)
+}
+campoValor.addEventListener('input', () => {
+  campoValor.value = formatarReais(campoValor.value, valorAnterior)
+  valorAnterior = campoValor.value
+  cursorNoFim()
+  ajustarValor()
+  calc()
+})
+for (const evento of ['focus', 'click', 'keyup', 'select']) campoValor.addEventListener(evento, cursorNoFim)
 document.addEventListener('selectionchange', () => {
-  const ativo = document.activeElement
-  if (ativo instanceof HTMLInputElement && NUMERICOS.some(([id]) => id === ativo.id)) cursorNoFim(ativo)
+  if (document.activeElement === campoValor) cursorNoFim()
 })
 
 carregar()
-// Números salvos por versões antigas ("10.000,00", "14.15") voltam no formato atual.
-for (const [id, max] of NUMERICOS) {
-  const campo = $<HTMLInputElement>(id)
-  campo.value = numeroParaCampo(parseNum(campo.value), max)
-  ajustarTamanho(campo)
-}
+// Valor salvo por versões antigas ("10.000,00") vira o formato atual.
+campoValor.value = reaisDeNumero(parseNum(campoValor.value))
+valorAnterior = campoValor.value
+ajustarValor()
 calc()
 
 // Procura versão nova ao abrir e sempre que o app volta para a frente.
