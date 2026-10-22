@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="description" content="Compara o rendimento líquido de um CDB e de uma LCI em cada faixa de IR." />
+    <meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="CDB x LCI" />
+    <meta name="format-detection" content="telephone=no" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <link rel="icon" href="/icons/favicon.svg" type="image/svg+xml" />
+    <title>CDB x LCI</title>
+  </head>
+  <body>
+    <main class="app">
+      <h1 class="large-title">CDB x LCI</h1>
+
+      <section class="card list" aria-label="Aplicação">
+        <label class="row" for="cdi">
+          <span class="row-label">CDI <span class="tag" id="cdi-sim" hidden>simulado</span></span>
+          <span class="row-value">
+            <input id="cdi" inputmode="decimal" enterkeyhint="done" autocomplete="off" value="14,15" />
+            <span class="suffix">% a.a.</span>
+          </span>
+          <button class="chev-btn" id="cdi-abre" type="button" aria-expanded="false" aria-controls="curva" aria-label="Simular o CDI de cada ano">
+            <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 5.25l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          </button>
+        </label>
+
+        <div class="curva" id="curva" data-open="false" inert>
+          <div class="curva-in">
+            <div class="curva-top">
+              <span>CDI por ano · arraste as barras</span>
+              <button class="text-btn" id="curva-reset" type="button" hidden>Igualar</button>
+            </div>
+            <div class="bars" id="bars"></div>
+          </div>
+        </div>
+
+        <label class="row" for="valor">
+          <span class="row-label">Valor</span>
+          <span class="row-value fit">
+            <span class="suffix">R$</span>
+            <input id="valor" inputmode="decimal" enterkeyhint="done" autocomplete="off" value="10.000" />
+          </span>
+        </label>
+
+        <label class="row" for="prazo">
+          <span class="row-label">Prazo</span>
+          <span class="row-value">
+            <input id="prazo" inputmode="decimal" enterkeyhint="done" autocomplete="off" placeholder="opcional" />
+            <span class="popup">
+              <select id="prazo-un" aria-label="Unidade do prazo">
+                <option value="dias">dias</option>
+                <option value="meses">meses</option>
+                <option value="anos">anos</option>
+              </select>
+            </span>
+          </span>
+        </label>
+      </section>
+
+      <div class="pair">
+        <section class="taxa cdb" aria-labelledby="h-cdb">
+          <h2 class="group-head" id="h-cdb">CDB <span class="aside" id="ir-cdb">IR 15%</span></h2>
+          <label class="card row" for="cdb">
+            <input id="cdb" class="taxa-input" inputmode="decimal" enterkeyhint="done" autocomplete="off" value="110" />
+            <span class="popup">
+              <select id="cdb-un" aria-label="Tipo de taxa do CDB">
+                <option value="cdi">% CDI</option>
+                <option value="aa">% a.a.</option>
+              </select>
+            </span>
+          </label>
+          <p class="group-foot" id="eq-cdb"></p>
+        </section>
+
+        <section class="taxa lci" aria-labelledby="h-lci">
+          <h2 class="group-head" id="h-lci">LCI <span class="aside">isenta</span></h2>
+          <label class="card row" for="lci">
+            <input id="lci" class="taxa-input" inputmode="decimal" enterkeyhint="done" autocomplete="off" value="90" />
+            <span class="popup">
+              <select id="lci-un" aria-label="Tipo de taxa da LCI">
+                <option value="cdi">% CDI</option>
+                <option value="aa">% a.a.</option>
+              </select>
+            </span>
+          </label>
+          <p class="group-foot" id="eq-lci"></p>
+        </section>
+      </div>
+
+      <section class="resultado" aria-labelledby="h-res">
+        <h2 class="section-title" id="h-res">Quanto você terá</h2>
+        <div class="card tabela" role="table" aria-describedby="nota">
+          <div class="tr th" role="row">
+            <span role="columnheader">Prazo</span>
+            <span role="columnheader" class="c-cdb">CDB</span>
+            <span role="columnheader" class="c-lci">LCI</span>
+            <span role="columnheader">Diferença</span>
+          </div>
+          <div id="linhas" role="rowgroup"></div>
+        </div>
+        <p class="group-foot" id="nota">Valores em reais, já sem IR, no último dia de cada faixa. Os dias contam a partir de hoje.</p>
+      </section>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

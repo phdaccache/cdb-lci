@@ -1,0 +1,293 @@
+:root {
+  /* Cores de sistema da Apple: fundo agrupado, cards brancos, azul de sistema como tint. */
+  --bg: #f2f2f7;
+  --surface: #ffffff;
+  --fill: rgb(118 118 128 / 0.12);
+  --ink: #000000;
+  --ink-2: #6e6e73;
+  --ink-3: #aeaeb2;
+  --line: #e3e3e8;
+  --accent: #007aff;
+  --pressed: rgb(0 0 0 / 0.06);
+  /* CDB em índigo e LCI em verde, para não confundir com o tint interativo. */
+  --cdb: #5856d6;
+  --cdb-soft: #ececfb;
+  --lci: #248a3d;
+  --lci-soft: #e4f4e8;
+  --bar: #d1d1d6;
+  --radius: 12px;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, system-ui, sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, system-ui, sans-serif;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #000000;
+    --surface: #1c1c1e;
+    --fill: rgb(118 118 128 / 0.24);
+    --ink: #ffffff;
+    --ink-2: #98989f;
+    --ink-3: #636366;
+    --line: #38383a;
+    --accent: #0a84ff;
+    --pressed: rgb(255 255 255 / 0.08);
+    --cdb: #7d7aff;
+    --cdb-soft: #23224a;
+    --lci: #30d158;
+    --lci-soft: #12301b;
+    --bar: #48484a;
+    color-scheme: dark;
+  }
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 17px/1.3 var(--font);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  overscroll-behavior-y: none;
+  caret-color: var(--accent);
+}
+::selection { background: color-mix(in srgb, var(--accent) 28%, transparent); }
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; background: none; border: 0; padding: 0; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+h1, h2, p { margin: 0; }
+
+.app {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: calc(var(--safe-top) + 14px) max(16px, env(safe-area-inset-right, 0px)) calc(var(--safe-bottom) + 40px) max(16px, env(safe-area-inset-left, 0px));
+  display: grid;
+  gap: 28px;
+}
+.large-title {
+  font: 700 34px/1.1 var(--font-display);
+  letter-spacing: -0.02em;
+  padding: 0 4px;
+  margin-top: 30px;
+  margin-bottom: -6px;
+}
+
+/* ——— cards e linhas, como em Ajustes ——— */
+
+.card { background: var(--surface); border-radius: var(--radius); }
+.list { overflow: hidden; }
+
+.row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 16px;
+}
+.list > .row + .row::before,
+.list > .curva + .row::before {
+  content: "";
+  position: absolute;
+  top: 0; right: 0; left: 16px;
+  height: 0.5px;
+  background: var(--line);
+}
+.row-label { flex: none; display: flex; align-items: center; gap: 8px; }
+.row-value { flex: 1; min-width: 0; display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
+.row-value input {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  text-align: right;
+  border: 0;
+  background: transparent;
+  padding: 12px 0;
+  font-variant-numeric: tabular-nums;
+  outline: none;
+}
+/* Valor: o campo cresce com o número para o "R$" ficar colado nele. */
+.row-value.fit input { flex: 0 1 auto; width: auto; field-sizing: content; min-width: 1ch; }
+input::placeholder { color: var(--ink-3); }
+.suffix { color: var(--ink-2); flex: none; }
+.tag {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  padding: 2px 7px;
+  border-radius: 99px;
+}
+
+/* Botão pop-up: texto no tint com as setas para cima e para baixo do iOS. */
+.popup { position: relative; display: inline-flex; align-items: center; flex: none; color: var(--accent); }
+.popup select {
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  padding: 12px 18px 12px 0;
+  cursor: pointer;
+}
+.popup::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  width: 11px;
+  height: 15px;
+  background: currentColor;
+  pointer-events: none;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 11 15'%3E%3Cpath d='M2 5.5l3.5-3.5L9 5.5M2 9.5l3.5 3.5L9 9.5' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 11 15'%3E%3Cpath d='M2 5.5l3.5-3.5L9 5.5M2 9.5l3.5 3.5L9 9.5' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.chev-btn {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  margin-right: -12px;
+  display: grid;
+  place-items: center;
+  color: var(--accent);
+  border-radius: 10px;
+}
+.chev-btn:active { background: var(--pressed); }
+.chev-btn svg { transition: transform 0.25s var(--ease-out); }
+.chev-btn[aria-expanded="true"] svg { transform: rotate(180deg); }
+
+.text-btn { color: var(--accent); font-size: 15px; min-height: 32px; padding: 0 4px; }
+.text-btn:active { opacity: 0.5; }
+
+/* ——— gráfico do CDI por ano ——— */
+
+.curva {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s var(--ease-drawer);
+}
+.curva[data-open="true"] { grid-template-rows: 1fr; }
+.curva-in { overflow: hidden; min-height: 0; }
+.curva-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 16px 0;
+  font-size: 13px;
+  color: var(--ink-2);
+  min-height: 32px;
+}
+.bars {
+  display: flex;
+  gap: 10px;
+  height: 200px;
+  padding: 26px 16px 12px;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.bar { flex: 1 1 0; min-width: 0; display: grid; grid-template-rows: 1fr auto; gap: 8px; cursor: ns-resize; border-radius: 8px; }
+.track { position: relative; }
+.fill {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  border-radius: 7px 7px 3px 3px;
+  background: var(--bar);
+  transition: background 0.15s ease;
+}
+.bar.set .fill { background: var(--accent); }
+.bar.ativa .fill { filter: brightness(1.08); }
+.bv {
+  position: absolute;
+  left: -6px; right: -6px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.by { text-align: center; font-size: 12px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.bars.many .bv { font-size: 11px; }
+
+/* ——— CDB e LCI lado a lado ——— */
+
+.pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-items: start; }
+.taxa { display: grid; gap: 6px; min-width: 0; }
+.group-head {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 0 16px;
+  font-size: 15px;
+  font-weight: 600;
+}
+.cdb .group-head { color: var(--cdb); }
+.lci .group-head { color: var(--lci); }
+.group-head .aside { font-size: 13px; font-weight: 400; color: var(--ink-2); }
+.taxa .row { padding-right: 12px; gap: 4px; }
+.taxa-input {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  padding: 12px 0;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+  outline: none;
+}
+.taxa .popup select { font-size: 15px; }
+.group-foot { padding: 0 16px; font-size: 13px; line-height: 1.35; color: var(--ink-2); font-variant-numeric: tabular-nums; text-wrap: pretty; }
+
+/* ——— tabela ——— */
+
+.resultado { display: grid; gap: 8px; }
+.section-title { font: 700 22px/1.2 var(--font-display); letter-spacing: -0.015em; padding: 0 4px; margin-bottom: 2px; }
+.tabela { overflow: hidden; }
+.tr {
+  position: relative;
+  display: grid;
+  grid-template-columns: 0.95fr 1.1fr 1.1fr 0.95fr;
+}
+.tr + .tr::before, #linhas > .tr:first-child::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 0.5px;
+  background: var(--line);
+}
+.th > span { padding: 10px 8px; font-size: 13px; font-weight: 600; color: var(--ink-2); }
+.th > span:first-child { padding-left: 14px; }
+.th .c-cdb { color: var(--cdb); }
+.th .c-lci { color: var(--lci); }
+.td { padding: 11px 8px; display: grid; gap: 1px; align-content: center; min-width: 0; }
+.td:first-child { padding-left: 14px; }
+.td .v { font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.td .s { font-size: 12px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.td.win.cdb { background: var(--cdb-soft); }
+.td.win.lci { background: var(--lci-soft); }
+.td.win.cdb .s, .td.dif.cdb .s { color: var(--cdb); }
+.td.win.lci .s, .td.dif.lci .s { color: var(--lci); }
+.td.dif.cdb .v { color: var(--cdb); }
+.td.dif.lci .v { color: var(--lci); }
+.tr.seu { background: var(--fill); }
+.tr.seu .td:first-child .s { color: var(--ink); font-weight: 600; }
+
+@media (max-width: 370px) {
+  .td .v { font-size: 13px; }
+  .taxa-input { font-size: 19px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .curva, .chev-btn svg, .fill { transition: none; }
+}
