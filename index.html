@@ -20,13 +20,13 @@
     <main class="app">
       <h1 class="large-title">CDB x LCI</h1>
 
-      <section class="card list" aria-label="Aplicação">
+      <section class="card list cols" aria-label="Aplicação">
         <label class="row" for="cdi">
           <span class="row-label">CDI <span class="tag" id="cdi-sim" hidden>simulado</span></span>
-          <span class="row-value">
+          <span class="cell-val">
             <input id="cdi" inputmode="decimal" enterkeyhint="done" autocomplete="off" value="14,15" />
-            <span class="suffix">% a.a.</span>
           </span>
+          <span class="suffix">% a.a.</span>
           <button class="chev-btn" id="cdi-abre" type="button" aria-expanded="false" aria-controls="curva" aria-label="Simular o CDI de cada ano">
             <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 5.25l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
           </button>
@@ -44,7 +44,7 @@
 
         <label class="row" for="valor">
           <span class="row-label">Valor</span>
-          <span class="row-value fit">
+          <span class="cell-val fit">
             <span class="suffix">R$</span>
             <input id="valor" inputmode="decimal" enterkeyhint="done" autocomplete="off" value="10.000" />
           </span>
@@ -52,15 +52,15 @@
 
         <label class="row" for="prazo">
           <span class="row-label">Prazo</span>
-          <span class="row-value">
+          <span class="cell-val">
             <input id="prazo" inputmode="decimal" enterkeyhint="done" autocomplete="off" placeholder="opcional" />
-            <span class="popup">
-              <select id="prazo-un" aria-label="Unidade do prazo">
-                <option value="dias">dias</option>
-                <option value="meses">meses</option>
-                <option value="anos">anos</option>
-              </select>
-            </span>
+          </span>
+          <span class="popup">
+            <select id="prazo-un" aria-label="Unidade do prazo">
+              <option value="dias">dias</option>
+              <option value="meses">meses</option>
+              <option value="anos">anos</option>
+            </select>
           </span>
         </label>
       </section>
@@ -106,7 +106,7 @@
           </div>
           <div id="linhas" role="rowgroup"></div>
         </div>
-        <p class="group-foot" id="nota">Valores em reais, já sem IR, no último dia de cada faixa. Os dias contam a partir de hoje.</p>
+        <p class="group-foot" id="nota">Valores em reais, já sem IR</p>
       </section>
     </main>
     <script type="module" src="/src/main.ts"></script>

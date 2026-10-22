@@ -13,7 +13,8 @@ const valor = (id: (typeof CAMPOS)[number]) => $<HTMLInputElement | HTMLSelectEl
 
 /** CDI simulado de cada ano depois do vigente (o vigente é o campo CDI). */
 let simulado: Record<number, number> = {}
-let arrasto: { ano: number; track: HTMLElement; escala: number } | null = null
+/** Barra sendo arrastada: o valor segue o dedo a partir de onde ele tocou (y0, v0), sem pular. */
+let arrasto: { ano: number; track: HTMLElement; escala: number; y0: number; v0: number } | null = null
 
 const fmt = (v: number, casas: number) =>
   v.toLocaleString('pt-BR', { minimumFractionDigits: casas, maximumFractionDigits: casas })
@@ -66,8 +67,9 @@ function calc() {
     u === 'cdi' ? (cdi > 0 ? pct(t / cdi, 1) + ' CDI' : '–') : pct(t) + ' a.a.'
 
   $('ir-cdb').textContent = `IR ${aliqTxt(aliq)}`
-  $('eq-cdb').textContent = `≈ LCI ${naUnidade(anual(vCdb, uCdb) * (1 - aliq), uLci)} ${quando}`
-  $('eq-lci').textContent = `≈ CDB ${naUnidade(anual(vLci, uLci) / (1 - aliq), uCdb)} ${quando}`
+  const equivalente = (texto: string) => `<span>${texto}</span><span class="quando"><i class="dot"></i>${quando}</span>`
+  $('eq-cdb').innerHTML = equivalente(`≈ LCI ${naUnidade(anual(vCdb, uCdb) * (1 - aliq), uLci)}`)
+  $('eq-lci').innerHTML = equivalente(`≈ CDB ${naUnidade(anual(vLci, uLci) / (1 - aliq), uCdb)}`)
 
   // Tabela: o fim de cada faixa de IR e, se houver, o prazo digitado.
   const taxa = (v: number, u: Unidade) => (ano: number) => (u === 'cdi' ? v * cdiAno(ano, ANO0, cdi, simulado) : v)
@@ -90,7 +92,7 @@ function calc() {
         <div class="tr${l.seu ? ' seu' : ''}" role="row">
           <div class="td" role="cell">
             <span class="v">${l.dias} dias</span>
-            <span class="s">${l.seu ? 'seu prazo · ' : ''}IR ${aliqTxt(l.aliq)}</span>
+            <span class="s">IR ${aliqTxt(l.aliq)}</span>
           </div>
           ${celula('cdb', rCdb)}${celula('lci', rLci)}
           <div class="td dif ${win}" role="cell">
@@ -102,7 +104,7 @@ function calc() {
     .join('')
 
   renderCurva(cdi, Math.max(721, dias))
-  salvar()
+  if (!arrasto) salvar() // durante o arraste, salva só ao soltar
 }
 
 // ——— gráfico do CDI por ano ———
@@ -158,9 +160,9 @@ function setCdiAno(ano: number, v: number) {
 
 const bars = $('bars')
 
-function valorDoPonteiro(e: PointerEvent) {
-  const r = arrasto!.track.getBoundingClientRect()
-  return arrasto!.escala * (1 - (e.clientY - r.top) / r.height)
+function valorDoPonteiro(y: number) {
+  const a = arrasto!
+  return a.v0 + ((a.y0 - y) / a.track.getBoundingClientRect().height) * a.escala
 }
 
 bars.addEventListener('pointerdown', e => {
@@ -168,20 +170,40 @@ bars.addEventListener('pointerdown', e => {
   if (!bar) return
   e.preventDefault()
   bar.focus({ preventScroll: true })
-  arrasto = { ano: Number(bar.dataset.ano), track: bar.querySelector('.track')!, escala: Number(bars.dataset.escala) }
+  const ano = Number(bar.dataset.ano)
+  arrasto = {
+    ano,
+    track: bar.querySelector('.track')!,
+    escala: Number(bars.dataset.escala),
+    y0: e.clientY,
+    v0: cdiAno(ano, ANO0, parseNum(valor('cdi')) / 100, simulado),
+  }
   bars.setPointerCapture(e.pointerId)
-  setCdiAno(arrasto.ano, valorDoPonteiro(e))
+  calc() // destaca a barra tocada já no toque
 })
+
+// Um recálculo por quadro, com a última posição do dedo.
+let quadro = 0
 bars.addEventListener('pointermove', e => {
-  if (arrasto) setCdiAno(arrasto.ano, valorDoPonteiro(e))
-})
-const soltar = () => {
   if (!arrasto) return
+  const y = e.clientY
+  cancelAnimationFrame(quadro)
+  quadro = requestAnimationFrame(() => {
+    if (arrasto) setCdiAno(arrasto.ano, valorDoPonteiro(y))
+  })
+})
+
+// Soltar, cancelar (o sistema tomou o gesto) ou perder a captura: o arraste sempre termina.
+const soltar = (e: PointerEvent) => {
+  if (!arrasto) return
+  cancelAnimationFrame(quadro)
+  if (e.type === 'pointerup') setCdiAno(arrasto.ano, valorDoPonteiro(e.clientY))
   arrasto = null
   calc()
 }
 bars.addEventListener('pointerup', soltar)
 bars.addEventListener('pointercancel', soltar)
+bars.addEventListener('lostpointercapture', soltar)
 bars.addEventListener('keydown', e => {
   const bar = (e.target as HTMLElement).closest<HTMLElement>('.bar')
   const passo = ({ ArrowUp: 0.0025, ArrowRight: 0.0025, ArrowDown: -0.0025, ArrowLeft: -0.0025 } as Record<string, number>)[e.key]

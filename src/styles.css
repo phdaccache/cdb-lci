@@ -20,6 +20,15 @@
   --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
+  /* Escala de texto em rem: 1rem é o corpo do iOS (17px no tamanho padrão) e segue o Tamanho do Texto do iPhone. */
+  --t-large: 2rem;      /* 34 */
+  --t-title: 1.294rem;  /* 22 */
+  --t-body: 1rem;       /* 17 */
+  --t-sub: 0.882rem;    /* 15 */
+  --t-table: 0.824rem;  /* 14 */
+  --t-foot: 0.765rem;   /* 13 */
+  --t-cap: 0.706rem;    /* 12 */
+  --t-cap2: 0.647rem;   /* 11 */
   --font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, system-ui, sans-serif;
   --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, system-ui, sans-serif;
   color-scheme: light;
@@ -36,7 +45,7 @@
     --line: #38383a;
     --accent: #0a84ff;
     --pressed: rgb(255 255 255 / 0.08);
-    --cdb: #7d7aff;
+    --cdb: #8e8cff;
     --cdb-soft: #23224a;
     --lci: #30d158;
     --lci-soft: #12301b;
@@ -46,12 +55,13 @@
 }
 
 * { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; }
+/* No iOS, -apple-system-body traz o tamanho escolhido em Ajustes; fora dele vale 17px. */
+html { -webkit-text-size-adjust: 100%; font-size: 17px; font: -apple-system-body; }
 body {
   margin: 0;
   background: var(--bg);
   color: var(--ink);
-  font: 17px/1.3 var(--font);
+  font: var(--t-body)/1.3 var(--font);
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
@@ -72,7 +82,7 @@ h1, h2, p { margin: 0; }
   gap: 28px;
 }
 .large-title {
-  font: 700 34px/1.1 var(--font-display);
+  font: 700 var(--t-large)/1.1 var(--font-display);
   letter-spacing: -0.02em;
   padding: 0 4px;
   margin-top: 30px;
@@ -101,8 +111,18 @@ h1, h2, p { margin: 0; }
   background: var(--line);
 }
 .row-label { flex: none; display: flex; align-items: center; gap: 8px; }
-.row-value { flex: 1; min-width: 0; display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
-.row-value input {
+
+/* Primeiro card: colunas compartilhadas (nome, número, unidade, seta) para os números
+   terminarem na mesma linha vertical e as unidades começarem juntas. */
+.list.cols { display: grid; grid-template-columns: auto minmax(0, 1fr) auto 24px; }
+.list.cols > * { grid-column: 1 / -1; }
+.list.cols > .row { display: grid; grid-template-columns: subgrid; column-gap: 0; }
+.list.cols > .row > .row-label { grid-column: 1; }
+.list.cols > .row > .cell-val { grid-column: 2; padding: 0 6px 0 12px; }
+.list.cols > .row > .suffix, .list.cols > .row > .popup { grid-column: 3; justify-self: start; }
+.list.cols > .row > .chev-btn { grid-column: 4; justify-self: end; }
+.cell-val { min-width: 0; display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
+.cell-val input {
   flex: 1;
   min-width: 0;
   width: 100%;
@@ -114,11 +134,11 @@ h1, h2, p { margin: 0; }
   outline: none;
 }
 /* Valor: o campo cresce com o número para o "R$" ficar colado nele. */
-.row-value.fit input { flex: 0 1 auto; width: auto; field-sizing: content; min-width: 1ch; }
+.cell-val.fit input { flex: 0 1 auto; width: auto; field-sizing: content; min-width: 1ch; }
 input::placeholder { color: var(--ink-3); }
 .suffix { color: var(--ink-2); flex: none; }
 .tag {
-  font-size: 12px;
+  font-size: var(--t-cap);
   font-weight: 600;
   color: var(--accent);
   background: color-mix(in srgb, var(--accent) 12%, transparent);
@@ -126,8 +146,9 @@ input::placeholder { color: var(--ink-3); }
   border-radius: 99px;
 }
 
-/* Botão pop-up: texto no tint com as setas para cima e para baixo do iOS. */
-.popup { position: relative; display: inline-flex; align-items: center; flex: none; color: var(--accent); }
+/* Botão pop-up como nos formulários do iOS: valor em cinza secundário com as setas para cima e para baixo. */
+.popup { position: relative; display: inline-flex; align-items: center; flex: none; color: var(--ink-2); }
+.popup:active { opacity: 0.6; }
 .popup select {
   appearance: none;
   -webkit-appearance: none;
@@ -163,7 +184,7 @@ input::placeholder { color: var(--ink-3); }
 .chev-btn svg { transition: transform 0.25s var(--ease-out); }
 .chev-btn[aria-expanded="true"] svg { transform: rotate(180deg); }
 
-.text-btn { color: var(--accent); font-size: 15px; min-height: 32px; padding: 0 4px; }
+.text-btn { color: var(--accent); font-size: var(--t-sub); min-height: 44px; min-width: 44px; padding: 0 4px; margin: -6px -4px; }
 .text-btn:active { opacity: 0.5; }
 
 /* ——— gráfico do CDI por ano ——— */
@@ -181,7 +202,7 @@ input::placeholder { color: var(--ink-3); }
   align-items: center;
   gap: 8px;
   padding: 4px 16px 0;
-  font-size: 13px;
+  font-size: var(--t-foot);
   color: var(--ink-2);
   min-height: 32px;
 }
@@ -209,13 +230,13 @@ input::placeholder { color: var(--ink-3); }
   position: absolute;
   left: -6px; right: -6px;
   text-align: center;
-  font-size: 13px;
+  font-size: var(--t-foot);
   font-weight: 600;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }
-.by { text-align: center; font-size: 12px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
-.bars.many .bv { font-size: 11px; }
+.by { text-align: center; font-size: var(--t-cap); color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.bars.many .bv { font-size: var(--t-cap2); }
 
 /* ——— CDB e LCI lado a lado ——— */
 
@@ -226,12 +247,12 @@ input::placeholder { color: var(--ink-3); }
   align-items: baseline;
   gap: 6px;
   padding: 0 16px;
-  font-size: 15px;
+  font-size: var(--t-sub);
   font-weight: 600;
 }
 .cdb .group-head { color: var(--cdb); }
 .lci .group-head { color: var(--lci); }
-.group-head .aside { font-size: 13px; font-weight: 400; color: var(--ink-2); }
+.group-head .aside { font-size: var(--t-foot); font-weight: 400; color: var(--ink-2); }
 .taxa .row { padding-right: 12px; gap: 4px; }
 .taxa-input {
   flex: 1;
@@ -240,19 +261,22 @@ input::placeholder { color: var(--ink-3); }
   border: 0;
   background: transparent;
   padding: 12px 0;
-  font-size: 22px;
+  font-size: var(--t-title);
   font-weight: 600;
   letter-spacing: -0.01em;
   font-variant-numeric: tabular-nums;
   outline: none;
 }
-.taxa .popup select { font-size: 15px; }
-.group-foot { padding: 0 16px; font-size: 13px; line-height: 1.35; color: var(--ink-2); font-variant-numeric: tabular-nums; text-wrap: pretty; }
+.taxa .popup select { font-size: var(--t-sub); }
+.group-foot { padding: 0 16px; font-size: var(--t-foot); line-height: 1.35; color: var(--ink-2); font-variant-numeric: tabular-nums; text-wrap: pretty; }
+.taxa .group-foot { display: grid; gap: 2px; }
+.quando { display: flex; align-items: center; gap: 6px; }
+.dot { width: 5px; height: 5px; border-radius: 50%; background: var(--ink-3); flex: none; }
 
 /* ——— tabela ——— */
 
 .resultado { display: grid; gap: 8px; }
-.section-title { font: 700 22px/1.2 var(--font-display); letter-spacing: -0.015em; padding: 0 4px; margin-bottom: 2px; }
+.section-title { font: 700 var(--t-title)/1.2 var(--font-display); letter-spacing: -0.015em; padding: 0 4px; margin-bottom: 2px; }
 .tabela { overflow: hidden; }
 .tr {
   position: relative;
@@ -266,14 +290,14 @@ input::placeholder { color: var(--ink-3); }
   height: 0.5px;
   background: var(--line);
 }
-.th > span { padding: 10px 8px; font-size: 13px; font-weight: 600; color: var(--ink-2); }
-.th > span:first-child { padding-left: 14px; }
+.th > span { padding: 9px 6px; font-size: var(--t-cap); font-weight: 600; color: var(--ink-2); }
+.th > span:first-child { padding-left: 12px; }
 .th .c-cdb { color: var(--cdb); }
 .th .c-lci { color: var(--lci); }
-.td { padding: 11px 8px; display: grid; gap: 1px; align-content: center; min-width: 0; }
-.td:first-child { padding-left: 14px; }
-.td .v { font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
-.td .s { font-size: 12px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.td { padding: 10px 6px; display: grid; gap: 1px; align-content: center; min-width: 0; }
+.td:first-child { padding-left: 12px; }
+.td .v { font-size: min(var(--t-table), 3.9vw); font-weight: 600; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.td .s { font-size: var(--t-cap); color: var(--ink-2); font-variant-numeric: tabular-nums; }
 .td.win.cdb { background: var(--cdb-soft); }
 .td.win.lci { background: var(--lci-soft); }
 .td.win.cdb .s, .td.dif.cdb .s { color: var(--cdb); }
@@ -281,11 +305,9 @@ input::placeholder { color: var(--ink-3); }
 .td.dif.cdb .v { color: var(--cdb); }
 .td.dif.lci .v { color: var(--lci); }
 .tr.seu { background: var(--fill); }
-.tr.seu .td:first-child .s { color: var(--ink); font-weight: 600; }
 
 @media (max-width: 370px) {
-  .td .v { font-size: 13px; }
-  .taxa-input { font-size: 19px; }
+  .taxa-input { font-size: 1.12rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
