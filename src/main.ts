@@ -169,7 +169,6 @@ bars.addEventListener('pointerdown', e => {
   const bar = (e.target as HTMLElement).closest<HTMLElement>('.bar')
   if (!bar) return
   e.preventDefault()
-  bar.focus({ preventScroll: true })
   const ano = Number(bar.dataset.ano)
   arrasto = {
     ano,

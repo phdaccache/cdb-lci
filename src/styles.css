@@ -149,6 +149,9 @@ input::placeholder { color: var(--ink-3); }
 /* Botão pop-up como nos formulários do iOS: valor em cinza secundário com as setas para cima e para baixo. */
 .popup { position: relative; display: inline-flex; align-items: center; flex: none; color: var(--ink-2); }
 .popup:active { opacity: 0.6; }
+/* Ao tocar, o iOS abre a roleta: sem contorno azul em volta da lista. No teclado, o texto escurece. */
+.popup select:focus, .popup select:focus-visible { outline: none; }
+.popup:has(select:focus-visible) { color: var(--ink); }
 .popup select {
   appearance: none;
   -webkit-appearance: none;
