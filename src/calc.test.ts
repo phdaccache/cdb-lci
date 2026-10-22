@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { aliquota, cdiAno, diasDoPrazo, fator, formatarReais, parseNum, reaisDeNumero } from './calc'
+import { TAXA_MAX, VALOR_MAX, aliquota, cdiAno, diasDoPrazo, fator, formatarNumero, numeroParaCampo, parseNum } from './calc'
 
 describe('aliquota', () => {
   it('inclui o último dia de cada faixa', () => {
@@ -26,31 +26,36 @@ describe('parseNum', () => {
   })
 })
 
-describe('formatarReais', () => {
-  it('põe os pontos de milhar e só mostra centavos depois da vírgula', () => {
-    expect(formatarReais('')).toBe('')
-    expect(formatarReais('0')).toBe('')
-    expect(formatarReais('1000')).toBe('1.000')
-    expect(formatarReais('1.0000')).toBe('10.000')
-    expect(formatarReais('1.000,')).toBe('1.000,')
-    expect(formatarReais('1.000,5')).toBe('1.000,5')
-    expect(formatarReais('1.000,567')).toBe('1.000,56')
-    expect(formatarReais(',5')).toBe('0,5')
-    expect(formatarReais('1.000.')).toBe('1.000,')
-    expect(formatarReais('12,3,4')).toBe('12,34')
-    expect(formatarReais('1.00')).toBe('100')
+describe('formatarNumero', () => {
+  const R = (s: string, anterior = '') => formatarNumero(s, VALOR_MAX, anterior)
+
+  it('põe os pontos de milhar e só mostra decimais depois da vírgula', () => {
+    expect(R('')).toBe('')
+    expect(R('0')).toBe('')
+    expect(R('1000')).toBe('1.000')
+    expect(R('1.0000')).toBe('10.000')
+    expect(R('1.000,')).toBe('1.000,')
+    expect(R('1.000,5')).toBe('1.000,5')
+    expect(R('1.000,567')).toBe('1.000,56')
+    expect(R(',5')).toBe('0,5')
+    expect(R('1.000.')).toBe('1.000,')
+    expect(R('12,3,4')).toBe('12,34')
+    expect(R('1.00')).toBe('100')
   })
 
-  it('não passa de R$ 10 milhões', () => {
-    expect(formatarReais('10.000.000')).toBe('10.000.000')
-    expect(formatarReais('10.000.0001', '10.000.000')).toBe('10.000.000')
-    expect(formatarReais('10.000.000,01', '10.000.000,0')).toBe('10.000.000,0')
+  it('não passa do máximo', () => {
+    expect(R('10.000.000')).toBe('10.000.000')
+    expect(R('10.000.0001', '10.000.000')).toBe('10.000.000')
+    expect(R('10.000.000,01', '10.000.000,0')).toBe('10.000.000,0')
+    expect(formatarNumero('1.0000', TAXA_MAX, '1.000')).toBe('1.000')
+    expect(formatarNumero('14,15', TAXA_MAX)).toBe('14,15')
   })
 
   it('converte números salvos', () => {
-    expect(reaisDeNumero(10000)).toBe('10.000')
-    expect(reaisDeNumero(1000.5)).toBe('1.000,50')
-    expect(reaisDeNumero(0)).toBe('')
+    expect(numeroParaCampo(10000, VALOR_MAX)).toBe('10.000')
+    expect(numeroParaCampo(1000.5, VALOR_MAX)).toBe('1.000,5')
+    expect(numeroParaCampo(15.565, TAXA_MAX)).toBe('15,57')
+    expect(numeroParaCampo(0, TAXA_MAX)).toBe('')
   })
 })
 
