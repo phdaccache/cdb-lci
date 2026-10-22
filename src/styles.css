@@ -89,54 +89,20 @@ h1, h2, p { margin: 0; }
   margin-bottom: -6px;
 }
 
-/* ——— cards e linhas, como em Ajustes ——— */
+/* ——— campos: título acima, número à esquerda e opção à direita ——— */
 
 .card { background: var(--surface); border-radius: var(--radius); }
-.list { overflow: hidden; }
+.entradas { display: grid; gap: 18px; }
 
 .row {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 10px;
-  min-height: 48px;
-  padding: 0 16px;
+  gap: 4px;
+  min-height: 52px;
+  padding: 0 12px 0 16px;
 }
-.list > .row + .row::before,
-.list > .curva + .row::before {
-  content: "";
-  position: absolute;
-  top: 0; right: 0; left: 16px;
-  height: 0.5px;
-  background: var(--line);
-}
-.row-label { flex: none; display: flex; align-items: center; gap: 8px; }
-
-/* Primeiro card: colunas compartilhadas (nome, número, unidade, seta) para os números
-   terminarem na mesma linha vertical e as unidades começarem juntas. */
-.list.cols { display: grid; grid-template-columns: auto minmax(0, 1fr) auto 24px; }
-.list.cols > * { grid-column: 1 / -1; }
-.list.cols > .row { display: grid; grid-template-columns: subgrid; column-gap: 0; }
-.list.cols > .row > .row-label { grid-column: 1; }
-.list.cols > .row > .cell-val { grid-column: 2; padding: 0 6px 0 12px; }
-.list.cols > .row > .suffix, .list.cols > .row > .popup { grid-column: 3; justify-self: start; }
-.list.cols > .row > .chev-btn { grid-column: 4; justify-self: end; }
-.cell-val { min-width: 0; display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
-.cell-val input {
-  flex: 1;
-  min-width: 0;
-  width: 100%;
-  text-align: right;
-  border: 0;
-  background: transparent;
-  padding: 12px 0;
-  font-variant-numeric: tabular-nums;
-  outline: none;
-}
-/* Valor: o campo cresce com o número para o "R$" ficar colado nele. */
-.cell-val.fit input { flex: 0 1 auto; width: auto; field-sizing: content; min-width: 1ch; }
 input::placeholder { color: var(--ink-3); }
-.suffix { color: var(--ink-2); flex: none; }
 .tag {
   font-size: var(--t-cap);
   font-weight: 600;
@@ -173,19 +139,21 @@ input::placeholder { color: var(--ink-3); }
   mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 11 15'%3E%3Cpath d='M2 5.5l3.5-3.5L9 5.5M2 9.5l3.5 3.5L9 9.5' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
 }
 
-.chev-btn {
+/* Opção à direita do número: mesmo cinza do pop-up. No CDI, abre o gráfico; no Valor, é só a unidade. */
+.opcao {
   flex: none;
-  width: 44px;
-  height: 44px;
-  margin-right: -12px;
-  display: grid;
-  place-items: center;
-  color: var(--accent);
-  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 44px;
+  color: var(--ink-2);
+  font-size: var(--t-sub);
 }
-.chev-btn:active { background: var(--pressed); }
-.chev-btn svg { transition: transform 0.25s var(--ease-out); }
-.chev-btn[aria-expanded="true"] svg { transform: rotate(180deg); }
+button.opcao:active { opacity: 0.6; }
+button.opcao:focus-visible { outline: none; color: var(--ink); }
+.opcao svg { transition: transform 0.25s var(--ease-out); }
+.opcao[aria-expanded="true"] svg { transform: rotate(180deg); }
+.opcao.fixa { padding-right: 2px; }
 
 .text-btn { color: var(--accent); font-size: var(--t-sub); min-height: 44px; min-width: 44px; padding: 0 4px; margin: -6px -4px; }
 .text-btn:active { opacity: 0.5; }
@@ -198,13 +166,16 @@ input::placeholder { color: var(--ink-3); }
   transition: grid-template-rows 0.3s var(--ease-drawer);
 }
 .curva[data-open="true"] { grid-template-rows: 1fr; }
+.card:has(.curva) { overflow: hidden; }
 .curva-in { overflow: hidden; min-height: 0; }
 .curva-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 8px;
-  padding: 4px 16px 0;
+  margin-left: 16px;
+  padding: 4px 16px 0 0;
+  border-top: 0.5px solid var(--line);
   font-size: var(--t-foot);
   color: var(--ink-2);
   min-height: 32px;
@@ -241,10 +212,10 @@ input::placeholder { color: var(--ink-3); }
 .by { text-align: center; font-size: var(--t-cap); color: var(--ink-2); font-variant-numeric: tabular-nums; }
 .bars.many .bv { font-size: var(--t-cap2); }
 
-/* ——— CDB e LCI lado a lado ——— */
+/* ——— campos lado a lado ——— */
 
 .pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-items: start; }
-.taxa { display: grid; gap: 6px; min-width: 0; }
+.campo { display: grid; gap: 6px; min-width: 0; }
 .group-head {
   display: flex;
   align-items: baseline;
@@ -256,8 +227,7 @@ input::placeholder { color: var(--ink-3); }
 .cdb .group-head { color: var(--cdb); }
 .lci .group-head { color: var(--lci); }
 .group-head .aside { font-size: var(--t-foot); font-weight: 400; color: var(--ink-2); }
-.taxa .row { padding-right: 12px; gap: 4px; }
-.taxa-input {
+.campo-input {
   flex: 1;
   min-width: 0;
   width: 100%;
@@ -270,9 +240,9 @@ input::placeholder { color: var(--ink-3); }
   font-variant-numeric: tabular-nums;
   outline: none;
 }
-.taxa .popup select { font-size: var(--t-sub); }
+.campo .popup select { font-size: var(--t-sub); }
 .group-foot { padding: 0 16px; font-size: var(--t-foot); line-height: 1.35; color: var(--ink-2); font-variant-numeric: tabular-nums; text-wrap: pretty; }
-.taxa .group-foot { display: grid; gap: 2px; }
+.campo .group-foot { display: grid; gap: 2px; }
 .quando { display: flex; align-items: center; gap: 6px; }
 .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--ink-3); flex: none; }
 
@@ -310,9 +280,9 @@ input::placeholder { color: var(--ink-3); }
 .tr.seu { background: var(--fill); }
 
 @media (max-width: 370px) {
-  .taxa-input { font-size: 1.12rem; }
+  .campo-input { font-size: 1.12rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .curva, .chev-btn svg, .fill { transition: none; }
+  .curva, .opcao svg, .fill { transition: none; }
 }

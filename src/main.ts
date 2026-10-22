@@ -242,14 +242,6 @@ for (const id of ['cdi', 'valor', 'prazo', 'prazo-un', 'cdb', 'lci']) $(id).addE
 carregar()
 calc()
 
-// Sem field-sizing (iOS antigo), o campo Valor ganha a largura do número digitado.
-if (!CSS.supports('field-sizing', 'content')) {
-  const campoValor = $<HTMLInputElement>('valor')
-  const ajustar = () => (campoValor.style.width = `${Math.max(1, campoValor.value.length) + 0.5}ch`)
-  campoValor.addEventListener('input', ajustar)
-  ajustar()
-}
-
 // Procura versão nova ao abrir e sempre que o app volta para a frente.
 registerSW({
   immediate: true,

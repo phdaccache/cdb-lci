@@ -20,79 +20,82 @@
     <main class="app">
       <h1 class="large-title">CDB x LCI</h1>
 
-      <section class="card list cols" aria-label="Aplicação">
-        <label class="row" for="cdi">
-          <span class="row-label">CDI <span class="tag" id="cdi-sim" hidden>simulado</span></span>
-          <span class="cell-val">
-            <input id="cdi" inputmode="decimal" enterkeyhint="done" autocomplete="off" value="14,15" />
-          </span>
-          <span class="suffix">% a.a.</span>
-          <button class="chev-btn" id="cdi-abre" type="button" aria-expanded="false" aria-controls="curva" aria-label="Simular o CDI de cada ano">
-            <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 5.25l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
-          </button>
-        </label>
-
-        <div class="curva" id="curva" data-open="false" inert>
-          <div class="curva-in">
-            <div class="curva-top">
-              <span>CDI por ano · arraste as barras</span>
-              <button class="text-btn" id="curva-reset" type="button" hidden>Igualar</button>
+      <div class="entradas">
+        <section class="campo" aria-labelledby="h-cdi">
+          <h2 class="group-head" id="h-cdi">CDI <span class="tag" id="cdi-sim" hidden>simulado</span></h2>
+          <div class="card">
+            <label class="row" for="cdi">
+              <input id="cdi" class="campo-input" inputmode="decimal" enterkeyhint="done" autocomplete="off" value="14,15" />
+              <button class="opcao" id="cdi-abre" type="button" aria-expanded="false" aria-controls="curva" aria-label="% ao ano. Simular o CDI de cada ano">
+                % a.a.
+                <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5l3.5 3.5 3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
+              </button>
+            </label>
+            <div class="curva" id="curva" data-open="false" inert>
+              <div class="curva-in">
+                <div class="curva-top">
+                  <span>CDI por ano · arraste as barras</span>
+                  <button class="text-btn" id="curva-reset" type="button" hidden>Igualar</button>
+                </div>
+                <div class="bars" id="bars"></div>
+              </div>
             </div>
-            <div class="bars" id="bars"></div>
           </div>
+        </section>
+
+        <div class="pair">
+          <section class="campo" aria-labelledby="h-valor">
+            <h2 class="group-head" id="h-valor">Valor</h2>
+            <label class="card row" for="valor">
+              <input id="valor" class="campo-input" inputmode="decimal" enterkeyhint="done" autocomplete="off" value="10.000" />
+              <span class="opcao fixa">R$</span>
+            </label>
+          </section>
+
+          <section class="campo" aria-labelledby="h-prazo">
+            <h2 class="group-head" id="h-prazo">Prazo <span class="aside">opcional</span></h2>
+            <label class="card row" for="prazo">
+              <input id="prazo" class="campo-input" inputmode="decimal" enterkeyhint="done" autocomplete="off" placeholder="–" />
+              <span class="popup">
+                <select id="prazo-un" aria-label="Unidade do prazo">
+                  <option value="dias">dias</option>
+                  <option value="meses">meses</option>
+                  <option value="anos">anos</option>
+                </select>
+              </span>
+            </label>
+          </section>
         </div>
 
-        <label class="row" for="valor">
-          <span class="row-label">Valor</span>
-          <span class="cell-val fit">
-            <span class="suffix">R$</span>
-            <input id="valor" inputmode="decimal" enterkeyhint="done" autocomplete="off" value="10.000" />
-          </span>
-        </label>
+        <div class="pair">
+          <section class="campo cdb" aria-labelledby="h-cdb">
+            <h2 class="group-head" id="h-cdb">CDB <span class="aside" id="ir-cdb">IR 15%</span></h2>
+            <label class="card row" for="cdb">
+              <input id="cdb" class="campo-input" inputmode="decimal" enterkeyhint="done" autocomplete="off" value="110" />
+              <span class="popup">
+                <select id="cdb-un" aria-label="Tipo de taxa do CDB">
+                  <option value="cdi">% CDI</option>
+                  <option value="aa">% a.a.</option>
+                </select>
+              </span>
+            </label>
+            <p class="group-foot" id="eq-cdb"></p>
+          </section>
 
-        <label class="row" for="prazo">
-          <span class="row-label">Prazo</span>
-          <span class="cell-val">
-            <input id="prazo" inputmode="decimal" enterkeyhint="done" autocomplete="off" placeholder="opcional" />
-          </span>
-          <span class="popup">
-            <select id="prazo-un" aria-label="Unidade do prazo">
-              <option value="dias">dias</option>
-              <option value="meses">meses</option>
-              <option value="anos">anos</option>
-            </select>
-          </span>
-        </label>
-      </section>
-
-      <div class="pair">
-        <section class="taxa cdb" aria-labelledby="h-cdb">
-          <h2 class="group-head" id="h-cdb">CDB <span class="aside" id="ir-cdb">IR 15%</span></h2>
-          <label class="card row" for="cdb">
-            <input id="cdb" class="taxa-input" inputmode="decimal" enterkeyhint="done" autocomplete="off" value="110" />
-            <span class="popup">
-              <select id="cdb-un" aria-label="Tipo de taxa do CDB">
-                <option value="cdi">% CDI</option>
-                <option value="aa">% a.a.</option>
-              </select>
-            </span>
-          </label>
-          <p class="group-foot" id="eq-cdb"></p>
-        </section>
-
-        <section class="taxa lci" aria-labelledby="h-lci">
-          <h2 class="group-head" id="h-lci">LCI <span class="aside">isenta</span></h2>
-          <label class="card row" for="lci">
-            <input id="lci" class="taxa-input" inputmode="decimal" enterkeyhint="done" autocomplete="off" value="90" />
-            <span class="popup">
-              <select id="lci-un" aria-label="Tipo de taxa da LCI">
-                <option value="cdi">% CDI</option>
-                <option value="aa">% a.a.</option>
-              </select>
-            </span>
-          </label>
-          <p class="group-foot" id="eq-lci"></p>
-        </section>
+          <section class="campo lci" aria-labelledby="h-lci">
+            <h2 class="group-head" id="h-lci">LCI <span class="aside">isenta</span></h2>
+            <label class="card row" for="lci">
+              <input id="lci" class="campo-input" inputmode="decimal" enterkeyhint="done" autocomplete="off" value="90" />
+              <span class="popup">
+                <select id="lci-un" aria-label="Tipo de taxa da LCI">
+                  <option value="cdi">% CDI</option>
+                  <option value="aa">% a.a.</option>
+                </select>
+              </span>
+            </label>
+            <p class="group-foot" id="eq-lci"></p>
+          </section>
+        </div>
       </div>
 
       <section class="resultado" aria-labelledby="h-res">
